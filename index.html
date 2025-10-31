@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TROJAN.4 - Automated Trading Power</title>
+    
+    <!-- ==================== CSS ==================== -->
+    <style>
+        /* --- Variables de Color (Tema Solana y Éxito) --- */
+        :root {
+            --solana-purple: #9945FF;
+            --solana-gradient: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+            --profit-green: #14F195;
+            --background-dark: #0A0E1A;
+            --surface-dark: #1a1f2e;
+            --surface-light: #252c42;
+            --text-primary: #FFFFFF;
+            --text-secondary: #a0a9c9;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --glow-green: 0 0 20px rgba(20, 241, 149, 0.4);
+            --warning-color: #ff4d4d;
+        }
+
+        /* --- Estilos Globales y Reset --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- Fondo Animado y "Currado" --- */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(153, 69, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(20, 241, 149, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(153, 69, 255, 0.05) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-20px, -20px) scale(1.1); }
+            66% { transform: translate(20px, -10px) scale(0.9); }
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: var(--solana-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        section {
+            padding: 100px 0;
+        }
+
+        /* --- Overlay de Política de Privacidad --- */
+        #privacy-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 14, 26, 0.98);
+            z-index: 3000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .privacy-content {
+            background: var(--surface-dark);
+            border: 1px solid var(--solana-purple);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .privacy-content h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            -webkit-text-fill-color: var(--text-primary);
+        }
+
+        .privacy-content p, .privacy-content li {
+            color: var(--text-secondary);
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .privacy-content ul {
+            list-style-position: inside;
+            padding-left: 10px;
+        }
+
+        /* --- Contenedor Principal de la App (Oculto al inicio) --- */
+        #main-app-container {
+            display: none; /* Oculto por defecto */
+        }
+
+        /* --- Header y Navegación --- */
+        .main-header {
+            background-color: rgba(26, 31, 46, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+            border-bottom: 1px solid rgba(153, 69, 255, 0.2);
+        }
+
+        .main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--solana-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 15px rgba(153, 69, 255, 0.5);
+        }
+
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+
+        .main-nav a, .main-nav button {
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .main-nav a:hover, .main-nav button:hover {
+            color: var(--profit-green);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* --- Sección Hero (Simplificada) --- */
+        #hero {
+            background: 
+                linear-gradient(rgba(10, 14, 26, 0.7), rgba(10, 14, 26, 0.7)),
+                url('https://z-cdn-media.chatglm.cn/files/e566da1a-db4d-4187-9217-701beae5a164_Trojan-Bot-Solana.jpg?auth_key=1761863736-2d08fd34096f4d0b98d9c51b42fce207-0-bc862c4a71e691a124534d9f4fc660e4') no-repeat center center/cover;
+            text-align: center;
+            padding: 150px 0;
+            display: flex;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #hero .tagline {
+            font-size: 1.5rem;
+            color: var(--profit-green);
+            margin-bottom: 2.5rem;
+            font-weight: 500;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--solana-gradient);
+            color: var(--background-dark);
+            box-shadow: var(--glow-green);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 25px rgba(20, 241, 149, 0.6);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--solana-purple);
+        }
+        .btn-secondary:hover {
+            background: var(--solana-purple);
+            color: var(--text-primary);
+        }
+        
+        .btn-action {
+            background: var(--profit-green);
+            color: var(--background-dark);
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-action:hover {
+            background: #10d083;
+            transform: translateY(-2px);
+        }
+        .btn-action:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- Sección Características (MEJORADA) --- */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: rgba(153, 69, 255, 0.1);
+            border: 1px solid rgba(153, 69, 255, 0.2);
+            padding: 40px 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--profit-green);
+            box-shadow: var(--glow-green);
+        }
+
+        .feature-card .icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--profit-green);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Sección Empezar (Interactiva) --- */
+        #empezar {
+            /* NUEVO: Fondo de imagen del caballo con overlay para legibilidad */
+            background: 
+                linear-gradient(rgba(10, 14, 26, 0.85), rgba(10, 14, 26, 0.85)), 
+                url('https://z-cdn-media.chatglm.cn/files/e566da1a-db4d-4187-9217-701beae5a164_Trojan-Bot-Solana.jpg?auth_key=1761863736-2d08fd34096f4d0b98d9c51b42fce207-0-bc862c4a71e691a124534d9f4fc660e4') no-repeat center center/cover;
+            background-size: cover;
+            background-position: center;
+            color: var(--text-primary); /* Asegura que el texto sea blanco por defecto */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); /* Sombra para mejorar la legibilidad */
+            text-align: center;
+            padding: 150px 0;
+            display: flex;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #empezar h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            background: none; /* Quitar el degradado del h2 para que resalte sobre el fondo */
+            -webkit-text-fill-color: var(--text-primary);
+        }
+
+        #empezar .tagline {
+            font-size: 1.5rem;
+            color: var(--profit-green);
+            margin-bottom: 2.5rem;
+            font-weight: 500;
+        }
+
+        #empezar .container {
+            max-width: 800px; /* Ancho máximo para legibilidad */
+        }
+
+        #startContent {
+            padding: 40px;
+            border: 1px dashed rgba(153, 69, 255, 0.5);
+            border-radius: 15px;
+            margin: 0 auto;
+            background-color: rgba(26, 31, 46, 0.7); /* Fondo semitransparente para que se vea el fondo */
+            backdrop-filter: blur(5px);
+        }
+
+        #loadingContent, #walletResult {
+            display: none;
+            border-radius: 15px;
+            max-width: 450px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        #loadingContent {
+            padding: 40px;
+            border: 1px solid var(--solana-purple);
+            text-align: center;
+        }
+
+        #walletResult {
+            background: var(--surface-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            color: var(--text-primary);
+        }
+
+        .wallet-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wallet-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .wallet-header-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--solana-gradient);
+            border-radius: 50%;
+        }
+
+        .wallet-balance {
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .balance-usd {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .btn-refresh {
+            position: absolute;
+            top: 28px;
+            right: 28px;
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-refresh:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-refresh.spinning {
+            animation: spin-counter-clockwise 1s linear infinite;
+        }
+
+        @keyframes spin-counter-clockwise {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        .wallet-details {
+            padding: 0 25px 25px;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .wallet-address-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--background-dark);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .wallet-address-display {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: var(--profit-green);
+            word-break: break-all;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .btn-copy {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        .btn-copy:hover {
+            color: var(--text-primary);
+        }
+
+        .wallet-message {
+            background: rgba(20, 241, 149, 0.1);
+            border: 1px solid var(--profit-green);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .wallet-message strong {
+            color: var(--profit-green);
+        }
+
+        .warning-message {
+            display: none;
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid var(--warning-color);
+            color: var(--warning-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            position: relative;
+        }
+        .warning-message .close-warning {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--warning-color);
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--profit-green);
+            animation: spin 1s ease infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Modal (para Documentación) --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 2000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: var(--surface-dark);
+            margin: 10% auto;
+            padding: 30px;
+            border: 1px solid var(--solana-purple);
+            border-radius: 15px;
+            width: 80%;
+            max-width: 700px;
+            color: var(--text-secondary);
+        }
+
+        .close {
+            color: var(--text-primary);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: var(--profit-green);
+        }
+
+        /* --- Footer --- */
+        .main-footer {
+            background-color: #050711;
+            color: var(--text-secondary);
+            text-align: center;
+            padding: 30px 0;
+            border-top: 1px solid rgba(153, 69, 255, 0.2);
+        }
+
+        /* --- Diseño Responsivo (Tablet y Móvil) --- */
+        @media (max-width: 768px) {
+            .main-header .container {
+                padding: 1rem 15px; /* Más padding en el header móvil */
+            }
+
+            .logo-text {
+                font-size: 1.5rem; /* Logo más pequeño en móvil */
+            }
+
+            .main-nav ul {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background-color: var(--surface-dark);
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: var(--shadow);
+            }
+            .main-nav ul.active {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            #hero h1 {
+                font-size: 2.5rem; /* Título más pequeño y legible */
+            }
+            #hero .tagline {
+                font-size: 1.2rem;
+            }
+            h2 {
+                font-size: 2rem;
+            }
+            #walletResult {
+                max-width: 95%;
+            }
+        }
+
+        /* --- Diseño Responsivo (Móvil Pequeño) --- */
+        @media (max-width: 480px) {
+            section {
+                padding: 60px 0; /* Menos padding vertical */
+            }
+            #hero {
+                padding: 100px 0;
+            }
+            #hero h1 {
+                font-size: 2.2rem;
+            }
+            .features-grid {
+                grid-template-columns: 1fr; /* Una columna para mejor legibilidad */
+                gap: 20px;
+            }
+            .feature-card {
+                padding: 30px 20px;
+            }
+            .feature-card h3 {
+                font-size: 1.3rem;
+            }
+            #walletResult {
+                max-width: 100%;
+                border-radius: 15px;
+            }
+            .wallet-balance {
+                padding: 20px 15px;
+            }
+            .balance-amount {
+                font-size: 2rem;
+            }
+            .btn {
+                padding: 15px 30px;
+                font-size: 1rem;
+            }
+            .btn-copy {
+                font-size: 1.5rem; /* Botón de copiar más grande */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== OVERLAY DE POLÍTICA DE PRIVACIDAD ==================== -->
+    <div id="privacy-overlay">
+        <div class="privacy-content">
+            <h2>Terms of Service and Privacy Policy</h2>
+            <p><strong>Effective date:</strong> May 24, 2024.</p>
+            <p>Welcome to TROJAN.4. By accessing and using our software, you agree to be bound by the following terms and conditions. Please read this document carefully before proceeding.</p>
+            <ul>
+                <li><strong>1. Software Nature:</strong> TROJAN.4 is an automated trading software tool designed to interact with the Solana blockchain. The bot's operation involves significant financial risks due to the high volatility of cryptocurrency markets.</li>
+                <li><strong>2. User Responsibility:</strong> You are solely responsible for all trades executed by the bot. Our company is not liable for any financial loss, direct or indirect, arising from the use of this software. Past performance does not guarantee future results.</li>
+                <li><strong>3. Privacy and Data:</strong> We do not collect, store, or have access to your private keys, seed phrases, or funds. All operations are performed from your local environment. We only collect anonymous usage data and performance metrics from the software to improve our services.</li>
+                <li><strong>4. Security Risks:</strong> Although we implement state-of-the-art security measures, the cryptocurrency environment is inherently risky. You assume the responsibility for keeping your access information secure and protecting your devices against malware or unauthorized access.</li>
+                <li><strong>5. Prohibited Use:</strong> It is strictly forbidden to use this software for illicit activities, including but not limited to market manipulation, fraud, or any activity that violates applicable financial regulations.</li>
+            </ul>
+            <p>By clicking "I Accept", you confirm that you have read, understood, and accept these terms in their entirety.</p>
+            <br>
+            <button id="acceptPrivacyBtn" class="btn btn-primary">I Accept and Continue</button>
+        </div>
+    </div>
+
+    <!-- ==================== CONTENEDOR PRINCIPAL DE LA APP (OCULTO) ==================== -->
+    <div id="main-app-container">
+        <!-- ==================== HEADER ==================== -->
+        <header class="main-header">
+            <div class="container">
+                <a href="#hero" class="logo">
+                    <span class="logo-text">TROJAN.4</span>
+                </a>
+                <nav class="main-nav">
+                    <button class="menu-toggle" id="menu-toggle">☰</button>
+                    <ul id="nav-links">
+                        <li><a href="#hero">Home</a></li>
+                        <li><button id="openHowItWorksModal">How It Works</button></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#empezar">Get Started</a></li>
+                        <li><button id="openDocModal">Documentation</button></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <!-- ==================== SECCIÓN HERO ==================== -->
+            <section id="hero">
+                <div class="container">
+                    <h1>The Future of Autonomous Trading</h1>
+                    <p class="tagline">Operate at the speed of light. Powered by AI.</p>
+                    <button id="heroEnterBtn" class="btn btn-primary">Get Started</button>
+                </div>
+            </section>
+
+            <!-- ==================== SECCIÓN CARACTERÍSTICAS (MEJORADA) ==================== -->
+            <section id="features">
+                <div class="container">
+                    <h2>Elite-Level Capabilities</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <div class="icon">🎯</div>
+                            <h3>Precision Sniper Mode</h3>
+                            <p>Buy tokens in the first milliseconds of their creation in liquidity pools. Our low-latency algorithm ensures the best entries before the competition.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">⚡️</div>
+                            <h3>MEV Extraction Bot</h3>
+                            <p>Capitalize on Maximal Extractable Value (MEV) opportunities by detecting and executing arbitrage and sandwich attacks at superhuman speeds.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">🛡️</div>
+                            <h3>Front-Running Detection</h3>
+                            <p>Analyze the mempool in real-time to identify and avoid being a victim of front-running attacks, protecting your trades from malicious actors.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">👥</div>
+                            <h3>Whale Copy Trading</h3>
+                            <p>Clone the trades of the most profitable and well-known wallets on Solana. Our bot tracks and replicates their movements in real-time.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">📊</div>
+                            <h3>Multi-Wallet Management</h3>
+                            <p>Control hundreds of wallets from a single dashboard. Distribute risk, maximize opportunities, and manage massive portfolios effortlessly.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="icon">⛽</div>
+                            <h3>Smart Gas Optimization</h3>
+                            <p>Calculate and use the most optimal gas fees for each transaction, ensuring fast executions without overspending during times of high congestion.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== SECCIÓN EMPEZAR (INTERACTIVA) ==================== -->
+            <section id="empezar">
+                <div class="container">
+                    <h2>Activate Your Trading Bot</h2>
+                    
+                    <div id="startContent">
+                        <p>You are one step away from activating your own trading bot. Click the button to generate your first secure wallet and start operating.</p>
+                        <br>
+                        <button class="btn btn-primary" id="startBtn">Generate My Wallet</button>
+                    </div>
+
+                    <div id="loadingContent">
+                        <p>Generating your secure wallet and preparing the bot...</p>
+                        <div class="spinner"></div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">This will only take a moment.</p>
+                    </div>
+
+                    <div id="walletResult">
+                        <div class="wallet-header">
+                            <h3>Your Wallet</h3>
+                            <div class="wallet-header-icon"></div>
+                        </div>
+                        <div class="wallet-balance">
+                            <div class="balance-amount" id="balanceAmount">0.00 SOL</div>
+                            <div class="balance-usd">$0.00</div>
+                            <!-- Botón de refresco con tu nueva imagen -->
+                            <img class="btn-refresh" id="refreshBalanceBtn" src="https://z-cdn-media.chatglm.cn/files/fc5dbad1-9e9b-4abc-ba37-0634571c26e0_189264.png?auth_key=1793400216-bffa5e50de864ea7b72671451ba6d68a-0-dd9722369908c5b4cb9f36a407c7d4ca" alt="Refresh Balance">
+                        </div>
+                        <div class="wallet-details">
+                            <div class="detail-label">Account Address</div>
+                            <div class="wallet-address-container">
+                                <span class="wallet-address-display" id="walletAddress"></span>
+                                <button class="btn-copy" id="copyBtn" title="Copy">📋</button>
+                            </div>
+                            <div class="wallet-message">
+                                <strong>Next step:</strong> Send any amount of SOL you wish to start trading with. The bot will activate automatically once funds are detected.
+                            </div>
+                            <button id="startTradingBtn" class="btn btn-action">Start Trading</button>
+                            <div id="warningMessage" class="warning-message">
+                                <button class="close-warning" id="closeWarning">&times;</button>
+                                <strong>Waiting for Funds.</strong> Please send SOL to your wallet and refresh to activate the bot.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- ==================== FOOTER ==================== -->
+        <footer class="main-footer">
+            <div class="container">
+                <p>&copy; 2024 TROJAN.4. All rights reserved. | Trade with intelligence, profit with speed.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ==================== MODALES ==================== -->
+    <!-- Modal Cómo Funciona -->
+    <div id="howItWorksModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeHowItWorks">&times;</span>
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">How the Bot Works</h2>
+            <p>Our system operates in three critical phases to ensure maximum performance and security.</p>
+            <ol style="padding-left: 20px; margin-top: 1rem;">
+                <li><strong>Connection & Analysis:</strong> The bot connects to Solana nodes and scans the blockchain for events, transactions, and new liquidity pool opportunities.</li>
+                <li><strong>Strategy Execution:</strong> Based on the selected strategy (Sniper, MEV, etc.), the bot evaluates the opportunity in microseconds and executes the trade if it meets your risk and profit parameters.</li>
+                <li><strong>Management & Reporting:</strong> Once executed, the bot manages the position (stop-loss, take-profit) and reports every move to you in real-time via your dashboard.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Modal Documentación -->
+    <div id="docModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeDoc">&times;</span>
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Technical Documentation</h2>
+            <p><strong>Architecture:</strong> Built on a Rust stack for the speed core and Node.js for the management API, ensuring optimal performance.</p>
+            <p><strong>API:</strong> We offer a full RESTful API for advanced users to integrate the bot into their own applications and workflows.</p>
+            <p><strong>Security:</strong> Private keys are never stored on our servers. The bot runs locally on your machine or a dedicated server under your control, giving you full sovereignty over your funds.</p>
+            <p><strong>Community:</strong> Join our Discord for support, strategy sharing, and to stay up-to-date with the latest updates.</p>
+        </div>
+    </div>
+
+    <!-- ==================== JAVASCRIPT ==================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Lógica del Overlay de Privacidad ---
+            const privacyOverlay = document.getElementById('privacy-overlay');
+            const acceptPrivacyBtn = document.getElementById('acceptPrivacyBtn');
+            const mainAppContainer = document.getElementById('main-app-container');
+
+            acceptPrivacyBtn.addEventListener('click', () => {
+                privacyOverlay.style.display = 'none';
+                mainAppContainer.style.display = 'block';
+            });
+
+            // --- Lógica del Botón "Comenzar" del Hero ---
+            const heroEnterBtn = document.getElementById('heroEnterBtn');
+            heroEnterBtn.addEventListener('click', () => {
+                document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            // --- Menú de Navegación Móvil ---
+            const menuToggle = document.getElementById('menu-toggle');
+            const navLinks = document.getElementById('nav-links');
+
+            menuToggle.addEventListener('click', function() {
+                navLinks.classList.toggle('active');
+            });
+
+            const allNavLinks = document.querySelectorAll('.main-nav a');
+            allNavLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    if (targetId && targetId.startsWith('#')) {
+                        const targetSection = document.querySelector(targetId);
+                        if (targetSection) {
+                            targetSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }
+                    if (window.innerWidth <= 768) {
+                        navLinks.classList.remove('active');
+                    }
+                });
+            });
+
+            // --- Lógica de Generación de Wallet ---
+            const startBtn = document.getElementById('startBtn');
+            const startContent = document.getElementById('startContent');
+            const loadingContent = document.getElementById('loadingContent');
+            const walletResult = document.getElementById('walletResult');
+            const walletAddressEl = document.getElementById('walletAddress');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            const WALLET_TO_GENERATE = '8sEVFvwbN9BTVbu1ifrSGqcdGnVDaU8eMzz55hQH5fJ5';
+            let currentBalance = 0.00;
+
+            function triggerWalletGeneration() {
+                startContent.style.display = 'none';
+                loadingContent.style.display = 'block';
+
+                setTimeout(() => {
+                    loadingContent.style.display = 'none';
+                    walletResult.style.display = 'block';
+                    walletAddressEl.textContent = WALLET_TO_GENERATE;
+                }, 4000); 
+            }
+
+            startBtn.addEventListener('click', triggerWalletGeneration);
+
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(WALLET_TO_GENERATE).then(() => {
+                    const originalIcon = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '✅';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalIcon;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Error al copiar el texto: ', err);
+                });
+            });
+
+            // --- Lógica del Botón de Refresco ---
+            const refreshBalanceBtn = document.getElementById('refreshBalanceBtn');
+            const balanceAmountEl = document.getElementById('balanceAmount');
+
+            refreshBalanceBtn.addEventListener('click', function() {
+                this.classList.add('spinning');
+                setTimeout(() => {
+                    this.classList.remove('spinning');
+                    balanceAmountEl.textContent = `${currentBalance.toFixed(2)} SOL`;
+                }, 1000);
+            });
+
+            // --- Lógica del Botón "Comenzar a Operar" y Advertencia ---
+            const startTradingBtn = document.getElementById('startTradingBtn');
+            const warningMessage = document.getElementById('warningMessage');
+            const closeWarningBtn = document.getElementById('closeWarning');
+
+            function updateTradingButtonState() {
+                if (currentBalance > 0) {
+                    startTradingBtn.disabled = false;
+                    startTradingBtn.textContent = 'Start Trading';
+                    warningMessage.style.display = 'none';
+                } else {
+                    startTradingBtn.disabled = true;
+                    startTradingBtn.textContent = 'Waiting for Funds';
+                    warningMessage.style.display = 'block';
+                }
+            }
+
+            startTradingBtn.addEventListener('click', function() {
+                if (currentBalance > 0) {
+                    alert('Bot initiated! Starting to trade...');
+                }
+            });
+
+            closeWarningBtn.addEventListener('click', function() {
+                warningMessage.style.display = 'none';
+            });
+            
+            // --- Lógica de Modales ---
+            const howItWorksModal = document.getElementById('howItWorksModal');
+            const docModal = document.getElementById('docModal');
+            const openHowItWorksBtn = document.getElementById('openHowItWorksModal');
+            const openDocBtn = document.getElementById('openDocModal');
+            const closeHowItWorksBtn = document.getElementById('closeHowItWorks');
+            const closeDocBtn = document.getElementById('closeDoc');
+
+            openHowItWorksBtn.onclick = () => howItWorksModal.style.display = "block";
+            openDocBtn.onclick = () => docModal.style.display = "block";
+            closeHowItWorksBtn.onclick = () => howItWorksModal.style.display = "none";
+            closeDocBtn.onclick = () => docModal.style.display = "none";
+
+            window.onclick = (event) => {
+                if (event.target == howItWorksModal) {
+                    howItWorksModal.style.display = "none";
+                }
+                if (event.target == docModal) {
+                    docModal.style.display = "none";
+                }
+            };
+
+        });
+    </script>
+
+</body>
+</html>
